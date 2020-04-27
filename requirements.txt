@@ -2,5 +2,5 @@ opencv-python==4.1.1.26
 numpy==1.17.4
 segmentation_models==1.0.0
 labelme==4.2.10
-tensorflow==1.13.1
+tensorflow==1.15.2
 keras==2.2.5
