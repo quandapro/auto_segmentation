@@ -15,7 +15,7 @@ IMG_SIZE = (256, 256, 3)
 MODEL_NAME = 'resnet34'
 MODEL_WEIGHT_PATH = 'data/resnet34.h5'
 
-model = sm.Unet(MODEL_NAME, input_shape=IMG_SIZE, classes=1, activation='sigmoid')
+model = sm.Unet(MODEL_NAME, input_shape=IMG_SIZE, classes=1, activation='sigmoid', encoder_weights=None)
 model.load_weights(MODEL_WEIGHT_PATH)
 
 def imageReader(imagePath):
