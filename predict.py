@@ -62,7 +62,7 @@ def main():
     image_files = os.listdir(IMAGE_FOLDER)
     image_name = [x.split('.')[0] for x in image_files]
     for i in range(len(image_files)):
-        if '.json' in image_files:
+        if ".json" in image_files[i] or ".git" in image_files[i]:
             continue
         image_path = os.path.join(IMAGE_FOLDER, image_files[i])
         output_mask_path = os.path.join(MASKS_OUTPUT_FOLDER, image_name[i] + '.jpg')
