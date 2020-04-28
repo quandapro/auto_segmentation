@@ -9,6 +9,7 @@ warnings.filterwarnings('ignore')
 IMAGE_FOLDER = 'data/images/'
 MASKS_OUTPUT_FOLDER = 'data/masks/'
 JSON_OUTPUT_FOLDER = 'data/images/'
+IMAGE_WITH_CONTOUR_OUTPUT = 'data/images_with_contours'
 LABEL = 'nuclei'
 
 IMG_SIZE = (256, 256, 3)
@@ -34,16 +35,15 @@ def predict(image):
 def saveMask(mask, maskPath):
     cv2.imwrite(maskPath, mask)
 
-def maskToJson(mask, label, imagePath, outputFile):
-    contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+def contoursToJson(contours, label, height, width, imagePath, outputFile):
     x = {
         "version": "4.2.10",
         "flags": {},
         "shapes": [],
         "imagePath": imagePath,
         "imageData": None,
-        "imageHeight": mask.shape[0],
-        "imageWidth": mask.shape[1]
+        "imageHeight": height,
+        "imageWidth": width
     }
     for contour in contours:
         contour = contour.reshape((contour.shape[0], contour.shape[2]))
@@ -58,19 +58,39 @@ def maskToJson(mask, label, imagePath, outputFile):
 
     json.dump(x, open(outputFile, 'w'))
 
+def drawContoursOnImage(contours, image, outputPath):
+    cv2.drawContours(image, contours, -1, (0,0,255), 5)
+    cv2.imwrite(outputPath, image)
+
 def main():
     image_files = os.listdir(IMAGE_FOLDER)
     image_name = [x.split('.')[0] for x in image_files]
     for i in range(len(image_files)):
         if ".json" in image_files[i] or ".git" in image_files[i]:
             continue
+
         image_path = os.path.join(IMAGE_FOLDER, image_files[i])
         output_mask_path = os.path.join(MASKS_OUTPUT_FOLDER, image_name[i] + '.jpg')
         output_json_path = os.path.join(JSON_OUTPUT_FOLDER, image_name[i] + '.json')
+        output_image_with_contours_path = os.path.join(IMAGE_WITH_CONTOUR_OUTPUT, image_name[i] + '.jpg')
+
+        # Load image
         image = imageReader(image_path)
+
+        # Auto draw mask on image
         mask = predict(image)
+
+        # Save mask 
         saveMask(mask, output_mask_path)
-        maskToJson(mask, LABEL, image_files[i], output_json_path)
+
+        #Find contours
+        contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        # Save contours as labelme annotation
+        contoursToJson(contours, LABEL, mask.shape[0], mask.shape[1], image_files[i], output_json_path)
+
+        # Save images with contours
+        drawContoursOnImage(contours, image, output_image_with_contours_path)
 
 if __name__ == '__main__':
     main()
