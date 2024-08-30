@@ -1,4 +1,4 @@
-opencv-python==4.1.1.26
+opencv-python==4.8.1.78
 numpy==1.17.4
 segmentation_models==1.0.0
 labelme==4.2.10
